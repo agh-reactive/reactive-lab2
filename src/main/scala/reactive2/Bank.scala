@@ -9,7 +9,24 @@ import scala.concurrent.duration._
 // More complex example: Bank account //
 ////////////////////////////////////////
 
-// Good practice: defining messages as case classes in an Actor's companion object
+/**
+ *
+ * Note:
+ * 1. It is a good practice to define messages accepted by an actor as 
+ *    case classes of that Actor's companion object (a contract/API of this actor).
+ * 2. It is important to distinguish different types of messages:
+ *    - Command message: used to invoke an action in the target actor, 
+ *      e.g. "DoTransfer(...)"
+ *    - Event message: used to inform that something happened in another actor, 
+ *      e.g. "TransferDone(...)"
+ *    - Document message: used to pass information but without intent to invoke 
+ *      specific action, and without indication that something has happened. 
+ *      E.g. "MoneyTransfer(...)"
+ * Read more: http://www.informit.com/articles/article.aspx?p=2428369
+ *
+ **/
+
+// Messages of the BankAccount actor 
 object BankAccount {
   case class Deposit(amount: BigInt) {
     require(amount > 0)
