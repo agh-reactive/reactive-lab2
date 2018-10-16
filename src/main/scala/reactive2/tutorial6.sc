@@ -1,6 +1,6 @@
 package reactive2
 
-object tutorial5 {
+object tutorial6 {
 
   ///////////////////////////////////////
   // Case classes and Pattern matching //
@@ -55,6 +55,8 @@ object tutorial5 {
   //   case n: Int                        -> matches any Int value
   //   case _                             -> matches anything
 
-  //:TODO What will happen when we add a new Expr type? Will the current code compile? How partial function is different than pattern matching?
-
+  // Assignment TODO -- check the following: 
+  // - What will happen when we add a new Expr type (e.g. 'Mul(e1, e2)') ? 
+  // - Will the current code compile? 
+  // - How a partial function is different from pattern matching?
 }
