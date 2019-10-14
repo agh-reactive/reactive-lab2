@@ -54,5 +54,4 @@ eval2(e)
 
 // Assignment TODO -- check the following:
 // - What will happen when we add a new Expr type (e.g. 'case class Mul(e1: Expr, e2: Expr)') ? Will the current code compile?
-// - How a partial function is different from pattern matching?
 
