@@ -12,21 +12,20 @@ import scala.concurrent.duration._
 /**
  *
  * Note:
- * 1. It is a good practice to define messages accepted by an actor as 
+ * 1. It is a good practice to define messages accepted by an actor as
  *    case classes of that Actor's companion object (a contract/API of this actor).
  * 2. It is important to distinguish different types of messages:
- *    - Command message: used to invoke an action in the target actor, 
+ *    - Command message: used to invoke an action in the target actor,
  *      e.g. "DoTransfer(...)"
- *    - Event message: used to inform that something happened in another actor, 
+ *    - Event message: used to inform that something happened in another actor,
  *      e.g. "TransferDone(...)"
- *    - Document message: used to pass information but without intent to invoke 
- *      specific action, and without indication that something has happened. 
+ *    - Document message: used to pass information but without intent to invoke
+ *      specific action, and without indication that something has happened.
  *      E.g. "MoneyTransfer(...)"
  * Read more: http://www.informit.com/articles/article.aspx?p=2428369
  *
  **/
-
-// Messages of the BankAccount actor 
+// Messages of the BankAccount actor
 object BankAccount {
   case class Deposit(amount: BigInt) {
     require(amount > 0)
@@ -86,7 +85,7 @@ class WireTransfer extends Actor {
       context.stop(self)
   }
 
-  // 3rd step: we await the deposit acknowledgment and notify the sender of the original request 
+  // 3rd step: we await the deposit acknowledgment and notify the sender of the original request
   def awaitDeposit(customer: ActorRef): Receive = LoggingReceive {
     case BankAccount.Done =>
       customer ! Done
@@ -119,7 +118,7 @@ class Bank extends Actor {
 }
 
 object BankApp extends App {
-  val system = ActorSystem("Reactive2")
+  val system    = ActorSystem("Reactive2")
   val mainActor = system.actorOf(Props[Bank], "mainActor")
 
   mainActor ! BankAccount.Init
