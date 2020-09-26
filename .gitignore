@@ -20,3 +20,11 @@ project/plugins/project/
 # IntelliJ specific
 /.idea
 /.idea_modules
+
+# Metals specific
+.bloop
+.metals
+project/.bloop
+project/metals.sbt
+project/project
+.vscode
