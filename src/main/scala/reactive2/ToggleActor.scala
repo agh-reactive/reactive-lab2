@@ -70,11 +70,11 @@ class ToggleMain extends Actor {
   }
 }
 
-object ToggleApp extends App {
+@main def toggleApp(): Unit =
   val system = ActorSystem("Reactive2")
   val mainActor = system.actorOf(Props[ToggleMain], "mainActor")
 
   mainActor ! "Init"
 
   Await.result(system.whenTerminated, Duration.Inf)
-}
+

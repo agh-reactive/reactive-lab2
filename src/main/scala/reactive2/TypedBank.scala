@@ -24,40 +24,42 @@ object TypedBankAccount {
 
   def apply(balance: BigInt): Behavior[Command] = Behaviors.receiveMessage {
     case Deposit(amount, replyTo) =>
-      replyTo ! TypedWireTransfer.Done
+      replyTo ! TypedWireTransfer.Command.Done
       apply(balance + amount)
     case Withdraw(amount, replyTo) if amount <= balance =>
-      replyTo ! TypedWireTransfer.Done
+      replyTo ! TypedWireTransfer.Command.Done
       apply(balance - amount)
     case c: Command =>
-      c.replyTo ! TypedWireTransfer.Failed
+      c.replyTo ! TypedWireTransfer.Command.Failed
       Behaviors.same
   }
 }
 
 // Wire transfers are handled by a separate actor
 
-object TypedWireTransfer {
-  trait Command
-  case class Transfer(
-    from: ActorRef[TypedBankAccount.Command],
-    to: ActorRef[TypedBankAccount.Command],
-    amount: BigInt,
-    replyTo: ActorRef[TypedBank.Command]
-  ) extends Command
-  case object Done   extends Command
-  case object Failed extends Command
+object TypedWireTransfer:
+
+  enum Command:
+    case Done extends Command
+    case Failed extends Command
+    case Transfer(
+      from: ActorRef[TypedBankAccount.Command],
+      to: ActorRef[TypedBankAccount.Command],
+      amount: BigInt,
+      replyTo: ActorRef[TypedBank.Command]
+    ) extends Command
+
+  import Command._
 
   // 1st step: we await transfer requests
   def apply(): Behavior[Command] =
-    Behaviors.receive(
-      (context, msg) =>
-        msg match {
-          case Transfer(from, to, amount, replyTo) =>
-            from ! TypedBankAccount.Withdraw(amount, context.self)
-            awaitWithdraw(to, amount, replyTo)
-          case _ =>
-            Behaviors.same
+    Behaviors.receive((context, msg) =>
+      msg match {
+        case Transfer(from, to, amount, replyTo) =>
+          from ! TypedBankAccount.Withdraw(amount, context.self)
+          awaitWithdraw(to, amount, replyTo)
+        case _ =>
+          Behaviors.same
       }
     )
 
@@ -69,36 +71,36 @@ object TypedWireTransfer {
     amount: BigInt,
     client: ActorRef[TypedBank.Command]
   ): Behavior[Command] =
-    Behaviors.receive(
-      (context, msg) =>
-        msg match {
-          case Done =>
-            to ! TypedBankAccount.Deposit(amount, context.self)
-            awaitDeposit(client)
-          case Failed =>
-            client ! TypedBank.Failed
-            Behaviors.stopped
-          case _ =>
-            Behaviors.same
+    Behaviors.receive((context, msg) =>
+      msg match {
+        case Done =>
+          to ! TypedBankAccount.Deposit(amount, context.self)
+          awaitDeposit(client)
+        case Failed =>
+          client ! TypedBank.Command.Failed
+          Behaviors.stopped
+        case _ =>
+          Behaviors.same
       }
     )
 
   // 3rd step: we await the deposit acknowledgment and notify the sender of the original request
   def awaitDeposit(customer: ActorRef[TypedBank.Command]): Behavior[Command] = Behaviors.receiveMessage {
     case Done =>
-      customer ! TypedBank.Done
+      customer ! TypedBank.Command.Done
       Behaviors.stopped
     case _ =>
       Behaviors.same
   }
-}
 
-object TypedBank {
+object TypedBank:
 
-  trait Command
-  case object Init   extends Command
-  case object Done   extends Command
-  case object Failed extends Command
+  enum Command:
+    case Init extends Command
+    case Done extends Command
+    case Failed extends Command
+
+  import Command._
 
   def apply(): Behavior[Command] = Behaviors.setup { context =>
     val account1 = context.spawn(TypedBankAccount(100), "account1")
@@ -113,7 +115,7 @@ object TypedBank {
     account2: ActorRef[TypedBankAccount.Command]
   ): Behavior[Command] = Behaviors.setup { context =>
     val transaction = context.spawn(TypedWireTransfer(), "transfer")
-    transaction ! TypedWireTransfer.Transfer(account1, account2, amount, context.self)
+    transaction ! TypedWireTransfer.Command.Transfer(account1, account2, amount, context.self)
     Behaviors.receiveMessage {
       case Done =>
         println("success")
@@ -124,10 +126,7 @@ object TypedBank {
     }
   }
 
-}
-
-object TypedBankApp extends App {
+@main def typedBankApp: Unit =
   val system = ActorSystem(TypedBank(), "mainActor")
 
   Await.result(system.whenTerminated, Duration.Inf)
-}

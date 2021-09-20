@@ -4,8 +4,9 @@
 
 // selaed means that Expr class cannot be implement outside of this scope
 sealed trait Expr
-case class Number(n: Int) extends Expr
+case class Number(n: Int)          extends Expr
 case class Sum(e1: Expr, e2: Expr) extends Expr
+case class Mul(e1: Expr, e2: Expr) extends Expr
 
 // Case classes are special classes:
 // 1. The compiler automatically generates a companion object with method "apply" and "unapply"
@@ -27,12 +28,13 @@ case class Sum(e1: Expr, e2: Expr) extends Expr
 // - what class was used to construct the object?
 // - what values were passed to the constructor?
 def eval(e: Expr): Int = e match {
-  case Number(n) => n
+  case Number(n)   => n
   case Sum(e1, e2) => eval(e1) + eval(e2)
-}                                               //> eval: (e: reactive2.tutorial5.Expr)Int
+} //> eval: (e: reactive2.tutorial5.Expr)Int
 
-val e = Sum(Sum(Number(2), Number(3)), Number(4)) //> e  : reactive2.tutorial5.Sum = Sum(Sum(Number(2),Number(3)),Number(4))
-eval(e) //> res0: Int = 9
+val e =
+  Sum(Mul(Number(2), Number(3)), Number(4)) //> e  : reactive2.tutorial5.Sum = Sum(Sum(Number(2),Number(3)),Number(4))
+//eval(e) //> res0: Int = 9
 
 // Pattern matching can be used to create partial function
 def eval2(e: Expr): Int = {
@@ -43,7 +45,7 @@ def eval2(e: Expr): Int = {
   evalPF(e)
 }
 
-eval2(e)
+//eval2(e)
 
 // Other examples of patterns:
 //   case 1                             -> matches constant "1"
@@ -54,3 +56,15 @@ eval2(e)
 // Assignment TODO -- check the following:
 // - What will happen when we add a new Expr type (e.g. 'case class Mul(e1: Expr, e2: Expr)') ? Will the current code compile?
 
+object Scala3Enums {
+
+  enum Expr:
+    case Number(n: Int) extends Expr
+    case Sum(e1: Expr, e2: Expr) extends Expr
+    case Mul(e1: Expr, e2: Expr) extends Expr
+    case Zero extends Expr
+
+  val expr = Expr.Number(1)
+}
+
+Scala3Enums.expr
