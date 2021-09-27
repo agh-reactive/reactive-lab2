@@ -1,4 +1,4 @@
-# Reactive programming in Scala - Lab 2: Designing actor systems
+# Reactive programming in Scala<br>Lab 2: Designing actor systems
 
 ## Example 1: Toggle and BankApp
 
