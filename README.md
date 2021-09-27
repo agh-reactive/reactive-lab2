@@ -38,4 +38,9 @@ sbt run
 
 ## Assignments: E-Shop
 
-Your assignment is to implement a part of an e-Shop system composed of the following actors:
+Your assignment is to implement a part of an e-Shop system composed of the following actors **Cart** and **Checkout**
+
+[[cart.png|width=3000px|align=right]]
+
+[[checkout.png|width=3000px|align=right]]
+
