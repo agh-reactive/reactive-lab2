@@ -25,9 +25,9 @@ sbt "runMain reactive2.ToggleApp"
 ### Configuration
 Configuration of logging can be found in [src/main/resources/application.conf](https://github.com/agh-reactive/reactive-lab2/blob/master/src/main/resources/application.conf)
 
-## Example 2: BuddyChat (legacy)
+## Example 2: BuddyChat
 
-Updated version can be found here: [https://github.com/agh-reactive/buddychat](https://github.com/agh-reactive/buddychat)
+The updated version can be found here: [https://github.com/agh-reactive/buddychat](https://github.com/agh-reactive/buddychat)
 
 ### Running
 ```
@@ -49,7 +49,7 @@ Your assignment is to implement a part of an e-Shop system composed of actors **
 ![Checkout actor](checkout.png)
 
 ### Separating domain logic
-A good practice in actor system design is to separate the domain logic from the communication logic. For example, the `Cart` actor should not impelemnt both the state of the cart and the communication protocol, because testing the business logic (cart state) will not be possible in isolation, only through the asynchronous communication protocol. In this case, it is better to separate a `case class Cart` representing the domain object from `actor CartActor` implementing the communication protocol:
+Good practice in actor system design is to separate the domain logic from the communication logic. For example, the `Cart` actor should not implement both the state of the cart and the communication protocol, because testing the business logic (cart state) will not be possible in isolation, only through the asynchronous communication protocol. In this case, it is better to separate a `case class Cart` representing the domain object from `actor CartActor` implementing the communication protocol:
 
 ```
 case class Cart(items: Seq[Any]) {
@@ -87,28 +87,27 @@ object CartActor {
     case class ItemAdded(id: String) extends Event
   }
 ```
-- Do sterowania maszyną stanów proszę wykorzystać standardowy mechanizm become.
-- Proszę stworzyć aplikację, która wykonuje prosty test stworzonych aktorów.
-- Do implementacji limitów czasowych proszę wykorzystać mechanizm timerów (do przeczytania również rozdział o Schedulerach). Aktor powinien zaplanować wysłanie wiadomości do samego siebie oznaczającej upłyniecie określonego terminu:
-  - CartTimer: czas po jakim koszyk jest automatycznie opróżniany.
-  - CheckoutTimer: czas po jakim rozpoczęta operacja finalizacji zakupu jest anulowana.
-  - PaymentTimer: maksymalny czas oczekiwania na zrealizowanie płatności, po którym operacja zakupu jest anulowana.
+- To implement a state machine, please use the standard actor `context.become` mechanism.
+- Create an app, which performs a simple test of created actors.
+- To implement time limits please use [scheduler's](https://doc.akka.io/docs/akka/current/scheduler.html#classic-scheduler) or [timer's](https://doc.akka.io/docs/akka/current/typed/from-classic.html#timers) mechanism. The actor should schedule sending a message to itself to mark that maximum time has elapsed:
+  - CartTimer: the time after which the cart is emptied.
+  - CheckoutTimer: the time after which checkout transaction is cancelled.
+  - PaymentTimer: maximum wait time for payment transaction completion, after which payment operation is cancelled.
 
-#### (10 pkt) Proszę wykorzystać [Akka Typed](https://doc.akka.io/docs/akka/current/typed/actors.html) do implementacji Aktora TypedCartActor
-#### (10 pkt) Proszę wykorzystać [Akka Typed](https://doc.akka.io/docs/akka/current/typed/actors.html) do implementacji Aktora TypedCheckout
+#### (10 pkt) Use [Akka Typed](https://doc.akka.io/docs/akka/current/typed/actors.html) to implement TypedCartActor
+#### (10 pkt) Use [Akka Typed](https://doc.akka.io/docs/akka/current/typed/actors.html) to implement TypedCheckout
 
 ## Implementation 
-Do implementacji powyższych zadań proszę wykorzystać [przygotowany szablon z początkowymi testami](https://github.com/agh-reactive/reactive-scala-labs-templates) 
+To implement the above tasks please use [prepared template containing initial test suites](https://github.com/agh-reactive/reactive-scala-labs-templates) 
 
-Testy uruchamiamy komendą `sbt test`.
+Tests can be run with `sbt test`.
 
-Szablon został stworzony, aby ułatwić implementację zadań domowych i pozwolić na skupienie większej uwagi na implementacji istotnych części zadania. Może się zdarzyć, iż szablon w niktórych miejsach będzie wymagał poprawek. Takie poprawki można zgłaszać jako PR do odpowiedniego repozytorium na githubie - będzie to premiowane punktami za aktywność. Przy odbiorze zadań większy nacisk zostanie położony na zrozumienie poszczególnych fragmentów programów i mechanizmów akki.
-
+The template was created to ease homework implementation and focus more on significant parts of tasks. This template is adjusted and updated yearly, and some oversight can happen. Such issues and improvements can be raised directly on the github repo. Such activities will be rewarded with additional points. During task evaluation, the focus will be on crucial parts of the code and theory behind particular akka mechanisms.
 
 ## Submission
 - Create a new private repository on github named `reactive-scala-labs`
-- Add your teacher to this repository as collaborator with write access
+- Add your teacher to this repository as a collaborator with write access
 - Clone the repo `https://github.com/agh-reactive/reactive-scala-labs-templates` and push it to the repo created in step 1
 - Create branch `lab2-solution` and add your full name to `README.md` file
 - Create a `Pull Request` from `lab2-solution` to `master` branch
-- Send the link to the `PR` as a solution to this assigment
+- Send the link to the `PR` as a solution to this assignment
